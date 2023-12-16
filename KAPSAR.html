@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petroleum Prices Chart</title>
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        canvas {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Petroleum Prices Chart</h1>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch data from the provided URL
+            fetch('http://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm')
+                .then(response => response.text())
+                .then(data => processData(data));
+        });
+
+        function processData(data) {
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+            const rows = Array.from(doc.querySelectorAll('.t1 tbody tr'));
+
+            // Extract dates and prices
+            const dates = rows.map(row => row.children[0].textContent.trim());
+            const prices = rows.map(row => parseFloat(row.children[1].textContent.trim()));
+
+            // Create a chart using Chart.js
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Petroleum Prices',
+                        data: prices,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: [{
+                            type: 'linear',
+                            position: 'bottom'
+                        }],
+                        y: [{
+                            type: 'linear',
+                            position: 'left'
+                        }]
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
